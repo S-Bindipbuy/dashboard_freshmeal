@@ -1,0 +1,83 @@
+/* Global plain CSS for Food App Dashboard */
+html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:#f8fafc;color:#0f172a;overflow-x:hidden}
+
+/* Custom Page Header styles */
+.page-header {
+  margin-bottom: 2rem;
+}
+.page-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+.page-header p {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.95rem;
+  color: #64748b;
+}
+
+/* Layout */
+.container{padding:2rem;max-width:1200px;margin:0 auto}
+.grid-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
+.panels{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem}
+.panel{background:#ffffff;padding:1.5rem;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.02)}
+.panel h2{margin:0 0 1rem 0;font-size:1.1rem;font-weight:600;color: #1e293b}
+.spark{height:60px}
+svg{width:100%;height:100%}
+
+@media(max-width:960px){
+  .panels{grid-template-columns:1fr}
+}
+
+/* Stats Card */
+.card{
+  padding:1.25rem;
+  border-radius:12px;
+  background:#ffffff;
+  box-shadow:0 1px 3px rgba(0,0,0,0.02);
+  border:1px solid #e2e8f0;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.card .meta{display:flex;justify-content:space-between;align-items:center}
+.card .title{font-size:0.875rem;font-weight: 500;color:#64748b}
+.card .change{font-size:0.75rem;font-weight: 600;color:#0b74de}
+.card .value{font-weight:700;font-size:1.5rem;margin-top:0.5rem;color:#0f172a}
+
+/* Orders Table */
+.orders {
+  overflow-x: auto;
+}
+.orders table{width:100%;border-collapse:collapse;text-align:left}
+th,td{padding:0.75rem 1rem;border-bottom:1px solid #e2e8f0;font-size:0.9rem}
+th {
+  font-weight: 600;
+  color: #475569;
+  background: #f8fafc;
+}
+td {
+  color: #0f172a;
+}
+select{
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background-color: #fff;
+  font-size: 0.85rem;
+  margin-right:0.5rem;
+  outline: none;
+}
+select:focus {
+  border-color: #0b74de;
+}
+.status{padding:0.25rem 0.5rem;border-radius:6px;font-size:0.8rem;font-weight: 500}
+.status.pending{background:#fef3c7;color:#d97706}
+.status.completed{background:#dcfce7;color:#15803d}
+.status.cancelled{background:#fee2e2;color:#b91c1c}
