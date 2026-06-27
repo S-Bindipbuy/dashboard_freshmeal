@@ -5,12 +5,12 @@ export type LatLng = { lat: number; lng: number };
 export type Order = {
   id: string;
   customer: string;
-  customerLocation: LatLng; // Map point coordinate
+  customerLocation: LatLng;
   total: string;
   status: 'Pending' | 'Completed' | 'Cancelled';
   time: string;
-  branchId?: string; // Assigned branch ID (auto routed)
-  distanceKm?: number; // Calculated distance to assigned branch
+  branchId?: string;
+  distanceKm?: number;
 };
 
 export const initialOrders: Order[] = [
