@@ -7,16 +7,14 @@
   let name = $state('');
   let address = $state('');
   let phone = $state('');
-  let lat = $state('');
-  let lng = $state('');
 
   function handleSubmit(e: Event) {
     e.preventDefault();
-    if (!name || !address || !phone || !lat || !lng) return;
+    if (!name || !address || !phone) return;
 
-    const latVal = parseFloat(lat);
-    const lngVal = parseFloat(lng);
-    if (isNaN(latVal) || isNaN(lngVal)) return;
+    // Generate random coordinates near HCMC center if not defined
+    const latVal = 10.7769 + (Math.random() - 0.5) * 0.15;
+    const lngVal = 106.7009 + (Math.random() - 0.5) * 0.15;
 
     addBranch({
       id: `B-${Date.now()}`,
@@ -30,15 +28,13 @@
     name = '';
     address = '';
     phone = '';
-    lat = '';
-    lng = '';
   }
 </script>
 
 <main class="container">
   <header class="page-header">
     <h1>Store Branches</h1>
-    <p>Manage physical storefronts and location status</p>
+    <p>Manage physical storefronts and location status. Click a card to view detailed revenue analytics.</p>
   </header>
 
   <section class="panel" style="margin-bottom: 1.5rem;">
@@ -64,7 +60,11 @@
     <h2>Active Storefronts</h2>
     <div class="branches-grid">
       {#each branchesList.current as branch}
-        <div class="branch-card" class:inactive-card={!branch.active}>
+        <a 
+          href="/branches/{branch.id}"
+          class="branch-card" 
+          class:inactive-card={!branch.active} 
+        >
           <div class="branch-card-header">
             <h3>{branch.name}</h3>
             <span class="branch-badge" class:badge-active={branch.active} class:badge-inactive={!branch.active}>
@@ -74,13 +74,16 @@
           <div class="branch-details">
             <p><strong>📍 Address:</strong> {branch.address}</p>
             <p><strong>📞 Phone:</strong> {branch.phone}</p>
+            <p style="color: #0b74de; font-weight: 500; font-size: 0.8rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+              <span>📈 Click to view revenue & stats</span>
+            </p>
           </div>
           <div class="branch-actions">
-            <button onclick={() => toggleBranchStatus(branch.id)} class="btn-toggle-branch">
+            <button onclick={(e) => { e.preventDefault(); e.stopPropagation(); toggleBranchStatus(branch.id); }} class="btn-toggle-branch">
               {branch.active ? 'Temporarily Close' : 'Activate Branch'}
             </button>
           </div>
-        </div>
+        </a>
       {/each}
     </div>
   </section>
@@ -148,10 +151,17 @@
     justify-content: space-between;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
   }
   .branch-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+  }
+  .branch-card:focus-visible {
+    outline: 2px solid #0b74de;
+    outline-offset: 2px;
   }
 
   .inactive-card {

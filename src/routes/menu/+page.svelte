@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { apiGetProducts, apiCreateProduct, BASE_URL, type ApiProduct } from '$lib/api';
-  import { isAdmin } from '$lib/stores/auth';
+  import { isLoggedIn } from '$lib/stores/auth';
   import { fromStore } from 'svelte/store';
 
-  let admin = fromStore(isAdmin);
+  let loggedIn = fromStore(isLoggedIn);
 
   let products = $state<ApiProduct[]>([]);
   let loading = $state(true);
@@ -29,15 +29,18 @@
 
   async function handleSubmit(e: Event) {
     e.preventDefault();
+
     if (!name || !price) return;
     formError = '';
     submitting = true;
+
     try {
       const form = new FormData();
       form.append('name', name);
       form.append('description', description);
       form.append('price', price);
       form.append('available', 'true');
+
       if (imageFile) form.append('image', imageFile);
 
       const created = await apiCreateProduct(form);
@@ -46,10 +49,15 @@
       description = '';
       price = '';
       imageFile = null;
-    } catch (e: unknown) {
+
+    }
+    catch (e: unknown) {
       formError = e instanceof Error ? e.message : 'Failed to create product';
-    } finally {
+
+    }
+    finally {
       submitting = false;
+
     }
   }
 
@@ -59,8 +67,7 @@
   }
 
   function productImageUrl(img: string): string {
-    // img is the UUID; backend serves /images/{uuid}.jpg
-    return `${BASE_URL}/images/${img}.jpg`;
+    return `${BASE_URL}/images/${img}`;
   }
 </script>
 
@@ -70,7 +77,7 @@
     <p>Live menu from the FreshMeal backend</p>
   </header>
 
-  {#if admin.current}
+  {#if loggedIn.current}
     <section class="panel" style="margin-bottom: 1.5rem;">
       <h2>Add New Product</h2>
       <form onsubmit={handleSubmit} class="add-product-form">
@@ -194,7 +201,6 @@
   }
   .muted { color: #64748b; font-size: 0.9rem; }
 
-  /* Product list */
   .product-list { list-style: none; padding: 0; margin: 0; }
   .product-item {
     display: flex;

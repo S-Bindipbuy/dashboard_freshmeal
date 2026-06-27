@@ -4,13 +4,18 @@
 	import '../app.css';
 	import { authStore, isLoggedIn } from '$lib/stores/auth';
 	import { fromStore } from 'svelte/store';
+	import { onMount } from 'svelte';
 
 	let { children } = $props();
 
 	let loggedIn = fromStore(isLoggedIn);
 
-	// Login / register form state
-	let mode = $state<'login' | 'register'>('login');
+	onMount(() => {
+		if (loggedIn.current) {
+			authStore._setProfileFromApi();
+		}
+	});
+
 	let email = $state('');
 	let name = $state('');
 	let password = $state('');
@@ -22,11 +27,7 @@
 		authError = '';
 		submitting = true;
 		try {
-			if (mode === 'login') {
-				await authStore.login(email, password);
-			} else {
-				await authStore.register(name, email, password);
-			}
+			await authStore.login(email, password);
 		} catch (err: unknown) {
 			authError = err instanceof Error ? err.message : 'Authentication failed';
 		} finally {
@@ -53,18 +54,7 @@
 			<h1 class="auth-title">FreshMeal</h1>
 			<p class="auth-sub">Dashboard — sign in to continue</p>
 
-			<div class="auth-tabs">
-				<button class="tab" class:active={mode === 'login'} onclick={() => mode = 'login'}>Sign In</button>
-				<button class="tab" class:active={mode === 'register'} onclick={() => mode = 'register'}>Register</button>
-			</div>
-
 			<form onsubmit={handleAuth} class="auth-form">
-				{#if mode === 'register'}
-					<div class="field">
-						<label for="auth-name">Full Name</label>
-						<input id="auth-name" type="text" placeholder="Jane Doe" bind:value={name} required />
-					</div>
-				{/if}
 				<div class="field">
 					<label for="auth-email">Email</label>
 					<input id="auth-email" type="email" placeholder="you@example.com" bind:value={email} required />
@@ -79,7 +69,7 @@
 				{/if}
 
 				<button type="submit" class="btn-auth" disabled={submitting}>
-					{submitting ? 'Please wait…' : mode === 'login' ? 'Sign In' : 'Create Account'}
+					{submitting ? 'Please wait…' : 'Sign In' }
 				</button>
 			</form>
 		</div>
