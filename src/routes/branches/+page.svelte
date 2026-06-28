@@ -1,33 +1,63 @@
 <script lang="ts">
-  import { branches, toggleBranchStatus, addBranch } from '$lib/stores/dashboard';
-  import { fromStore } from 'svelte/store';
+  import { branches, toggleBranchStatus, addBranch, refreshBranches } from '$lib/stores/dashboard';
+  import type { Branch } from '$lib/stores/dashboard';
+  import { onMount } from 'svelte';
+  import { apiCreateBranch } from '$lib/api';
 
-  let branchesList = fromStore(branches);
+  let rawBranches = $state<Branch[]>([]);
+  let loading = $state(true);
+
+  onMount(() => {
+    return branches.subscribe(v => rawBranches = v);
+  });
 
   let name = $state('');
   let address = $state('');
-  let phone = $state('');
+  let lat = $state('');
+  let lng = $state('');
 
-  function handleSubmit(e: Event) {
+  onMount(async () => {
+    await refreshBranches();
+    loading = false;
+  });
+
+  async function handleSubmit(e: Event) {
     e.preventDefault();
-    if (!name || !address || !phone) return;
+    if (!name || !address || !lat || !lng) return;
 
-    // Generate random coordinates near HCMC center if not defined
-    const latVal = 10.7769 + (Math.random() - 0.5) * 0.15;
-    const lngVal = 106.7009 + (Math.random() - 0.5) * 0.15;
+    const latVal = parseFloat(lat);
+    const lngVal = parseFloat(lng);
 
-    addBranch({
-      id: `B-${Date.now()}`,
-      name,
-      address,
-      phone,
-      active: true,
-      location: { lat: latVal, lng: lngVal }
-    });
+    try {
+      const b = await apiCreateBranch(name, address, latVal, lngVal);
+      addBranch({
+        id: String(b.id),
+        name: b.name,
+        address: b.address,
+        phone: '',
+        active: true,
+        location: { lat: b.lat, lng: b.lng }
+      });
+    } catch (_) {
+      // fallback to local
+      addBranch({
+        id: `B-${Date.now()}`,
+        name,
+        address,
+        phone: '',
+        active: true,
+        location: { lat: latVal, lng: lngVal }
+      });
+    }
 
     name = '';
     address = '';
-    phone = '';
+    lat = '';
+    lng = '';
+  }
+
+  function handleToggle(id: string) {
+    toggleBranchStatus(id);
   }
 </script>
 
@@ -42,50 +72,59 @@
     <form onsubmit={handleSubmit} class="branch-form">
       <div class="form-group">
         <label for="br-name">Branch Name</label>
-        <input id="br-name" type="text" placeholder="e.g. District 3 Express" bind:value={name} required />
+        <input id="br-name" type="text" placeholder="e.g. Downtown Branch" bind:value={name} required />
       </div>
       <div class="form-group">
         <label for="br-address">Address</label>
-        <input id="br-address" type="text" placeholder="e.g. 100 Nguyen Dinh Chieu" bind:value={address} required />
+        <input id="br-address" type="text" placeholder="e.g. 123 Main Street" bind:value={address} required />
       </div>
       <div class="form-group">
-        <label for="br-phone">Phone</label>
-        <input id="br-phone" type="text" placeholder="e.g. 028-3930-4000" bind:value={phone} required />
+        <label for="br-lat">Latitude</label>
+        <input id="br-lat" type="number" step="any" placeholder="e.g. 3.1390" bind:value={lat} required />
+      </div>
+      <div class="form-group">
+        <label for="br-lng">Longitude</label>
+        <input id="br-lng" type="number" step="any" placeholder="e.g. 101.6869" bind:value={lng} required />
       </div>
       <button type="submit" class="btn-primary">Add Branch</button>
     </form>
   </section>
 
   <section class="panel">
-    <h2>Active Storefronts</h2>
-    <div class="branches-grid">
-      {#each branchesList.current as branch}
-        <a 
-          href="/branches/{branch.id}"
-          class="branch-card" 
-          class:inactive-card={!branch.active} 
-        >
-          <div class="branch-card-header">
-            <h3>{branch.name}</h3>
-            <span class="branch-badge" class:badge-active={branch.active} class:badge-inactive={!branch.active}>
-              {branch.active ? 'Active' : 'Closed'}
-            </span>
-          </div>
-          <div class="branch-details">
-            <p><strong>📍 Address:</strong> {branch.address}</p>
-            <p><strong>📞 Phone:</strong> {branch.phone}</p>
-            <p style="color: #0b74de; font-weight: 500; font-size: 0.8rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
-              <span>📈 Click to view revenue & stats</span>
-            </p>
-          </div>
-          <div class="branch-actions">
-            <button onclick={(e) => { e.preventDefault(); e.stopPropagation(); toggleBranchStatus(branch.id); }} class="btn-toggle-branch">
-              {branch.active ? 'Temporarily Close' : 'Activate Branch'}
-            </button>
-          </div>
-        </a>
-      {/each}
-    </div>
+    <h2>Storefronts</h2>
+    {#if loading}
+      <p style="text-align:center;padding:2rem;color:#64748b;">Loading branches...</p>
+    {:else if rawBranches.length === 0}
+      <p style="text-align:center;padding:2rem;color:#64748b;">No branches yet.</p>
+    {:else}
+      <div class="branches-grid">
+        {#each rawBranches as branch}
+          <a 
+            href="/branches/{branch.id}"
+            class="branch-card" 
+            class:inactive-card={!branch.active} 
+          >
+            <div class="branch-card-header">
+              <h3>{branch.name}</h3>
+              <span class="branch-badge" class:badge-active={branch.active} class:badge-inactive={!branch.active}>
+                {branch.active ? 'Active' : 'Closed'}
+              </span>
+            </div>
+            <div class="branch-details">
+              <p><strong>📍 Address:</strong> {branch.address}</p>
+              <p style="color: #0b74de; font-weight: 500; font-size: 0.8rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                <span>📈 Click to view revenue & stats</span>
+              </p>
+            </div>
+            <div class="branch-actions">
+              <button onclick={(e) => { e.preventDefault(); e.stopPropagation(); handleToggle(branch.id); }} class="btn-toggle-branch" style="color:#059669;border-color:#6ee7b7;">
+                {branch.active ? 'Close' : 'Open'}
+              </button>
+            </div>
+          </a>
+        {/each}
+      </div>
+    {/if}
   </section>
 </main>
 

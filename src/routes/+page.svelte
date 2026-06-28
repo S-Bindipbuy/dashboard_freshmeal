@@ -1,9 +1,12 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import StatsCard from '$lib/components/StatsCard.svelte';
   import OrdersTable from '$lib/components/OrdersTable.svelte';
-  import { stats, orders as ordersStore } from '$lib/stores/dashboard';
+  import { stats, orders as ordersStore, refreshOrders } from '$lib/stores/dashboard';
 
   const sparkData = [5,8,6,10,9,11,8,12,9,10];
+
+  onMount(() => { refreshOrders(); });
 </script>
 
 <main class="container">

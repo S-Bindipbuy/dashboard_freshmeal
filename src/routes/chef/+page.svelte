@@ -1,11 +1,18 @@
 <script lang="ts">
-  import { orders, updateOrderStatus } from '$lib/stores/dashboard';
-  import { fromStore } from 'svelte/store';
+  import { onMount } from 'svelte';
+  import { orders, updateOrderStatus, refreshOrders } from '$lib/stores/dashboard';
+  import type { Order } from '$lib/stores/dashboard';
 
-  let order_list = fromStore(orders);
+  let rawOrders = $state<Order[]>([]);
 
-  // Filter orders that need cooking (Pending / Preparing or even just showing all except cancelled)
-  let activeOrders = $derived(order_list.current.filter(o => o.status !== 'Cancelled'));
+  onMount(() => {
+    refreshOrders();
+    return orders.subscribe(v => rawOrders = v);
+  });
+
+  let activeOrders = $derived(rawOrders.filter(o =>
+    o.status === 'Paid' || o.status === 'Confirmed' || o.status === 'Preparing' || o.status === 'Pending'
+  ));
 </script>
 
 <main class="container">
@@ -23,13 +30,13 @@
       </div>
     {:else}
       {#each activeOrders as order}
-        <article class="chef-card" class:completed-card={order.status === 'Completed'}>
+        <article class="chef-card" class:completed-card={order.status === 'Delivered'}>
           <div class="card-header">
             <div>
               <span class="order-id">{order.id}</span>
               <span class="order-time">⏰ {order.time}</span>
             </div>
-            <span class="status-badge" class:status-completed={order.status === 'Completed'} class:status-pending={order.status === 'Pending'}>
+            <span class="status-badge" class:status-completed={order.status === 'Delivered'} class:status-pending={order.status === 'Pending' || order.status === 'Paid' || order.status === 'Confirmed' || order.status === 'Preparing'}>
               {order.status}
             </span>
           </div>
@@ -37,39 +44,32 @@
           <div class="card-body">
             <h3 class="customer-name">{order.customer}</h3>
             <div class="items-list">
-              <!-- Simulate items based on the order ID or price for culinary visualization -->
-              <div class="item-row">
-                <span class="item-qty">1x</span>
-                <span class="item-name">Special Pho Bo (Beef Noodle)</span>
-              </div>
-              {#if parseFloat(order.total.replace('$', '')) > 20}
+              {#each order.items as item}
                 <div class="item-row">
-                  <span class="item-qty">2x</span>
-                  <span class="item-name">Crispy Spring Rolls (Goi Cuon)</span>
+                  <span class="item-qty">{item.quantity}x</span>
+                  <span class="item-name">{item.product_name}</span>
                 </div>
-                <div class="item-row">
-                  <span class="item-qty">1x</span>
-                  <span class="item-name">Vietnamese Iced Coffee (Cafe Sua Da)</span>
-                </div>
-              {/if}
+              {/each}
             </div>
           </div>
 
           <div class="card-actions">
-            {#if order.status === 'Pending'}
+            {#if order.status === 'Paid' || order.status === 'Confirmed'}
               <button 
-                onclick={() => updateOrderStatus(order.id, 'Completed')} 
+                onclick={() => updateOrderStatus(order.id, 'Preparing')} 
+                class="btn-prepare"
+              >
+                ⏳ Start preparing
+              </button>
+            {:else if order.status === 'Preparing'}
+              <button 
+                onclick={() => updateOrderStatus(order.id, 'Delivered')} 
                 class="btn-complete"
               >
                 ✓ Complete cooking
               </button>
-            {:else}
-              <button 
-                onclick={() => updateOrderStatus(order.id, 'Pending')} 
-                class="btn-reopen"
-              >
-                ⟲ Reopen preparation
-              </button>
+            {:else if order.status === 'Pending'}
+              <span class="waiting-payment">⏳ Awaiting payment</span>
             {/if}
           </div>
         </article>
@@ -212,6 +212,35 @@
   .btn-reopen:hover {
     background: #f1f5f9;
     color: #0f172a;
+  }
+
+  .btn-prepare {
+    width: 100%;
+    padding: 0.65rem;
+    background: #dbeafe;
+    color: #1d4ed8;
+    border: 1px solid #93c5fd;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-prepare:hover {
+    background: #bfdbfe;
+  }
+
+  .waiting-payment {
+    display: block;
+    width: 100%;
+    padding: 0.65rem;
+    background: #f1f5f9;
+    color: #64748b;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-align: center;
   }
 
   .empty-state {

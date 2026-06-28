@@ -1,21 +1,30 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { page } from '$app/state';
-  import { branches, toggleBranchStatus, orders } from '$lib/stores/dashboard';
-  import type { Order } from '$lib/stores/dashboard';
-  import { fromStore } from 'svelte/store';
+  import { branches, toggleBranchStatus, orders, refreshOrders } from '$lib/stores/dashboard';
+  import type { Order, Branch } from '$lib/stores/dashboard';
 
-  let branchesList = fromStore(branches);
-  let ordersList = fromStore(orders);
+  let rawBranches = $state<Branch[]>([]);
+  let rawOrders = $state<Order[]>([]);
+
+  onMount(() => {
+    refreshOrders();
+    return branches.subscribe(v => rawBranches = v);
+  });
+
+  onMount(() => {
+    return orders.subscribe(v => rawOrders = v);
+  });
 
   // Find active branch based on page params
   let branchId = $derived(page.params.id);
-  let branch = $derived(branchesList.current.find(b => b.id === branchId));
+  let branch = $derived(rawBranches.find(b => b.id === branchId));
 
   let activeTab = $state<'monthly' | 'yearly'>('monthly');
 
   // Compute stats and orders reactively
-  let stats = $derived(branch ? getBranchRevenueStats(branch.id, ordersList.current) : null);
-  let branchOrders = $derived(ordersList.current.filter(o => o.branchId === branchId));
+  let stats = $derived(branch ? getBranchRevenueStats(branch.id, rawOrders) : null);
+  let branchOrders = $derived(rawOrders.filter(o => o.branchId === branchId));
 
   function getBranchRevenueStats(id: string, orders: Order[]) {
     // Generate deterministic seed based on branchId string
