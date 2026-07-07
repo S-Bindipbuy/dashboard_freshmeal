@@ -1,42 +1,96 @@
-/* Global plain CSS for Food App Dashboard */
-html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:#f8fafc;color:#0f172a;overflow-x:hidden}
+/* ── Catppuccin Mocha Dark Theme ── */
+:root {
+  --bg: #f8fafc;
+  --text: #0f172a;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --card-bg: #ffffff;
+  --sidebar-bg: #f8fafc;
+  --sidebar-text: #0f172a;
+  --sidebar-muted: #475569;
+  --sidebar-border: #e2e8f0;
+  --sidebar-hover: #f1f5f9;
+  --sidebar-active: #e2e8f0;
+  --sidebar-footer-bg: #f8fafc;
+  --modal-bg: #ffffff;
+  --input-bg: #fff;
+  --input-border: #cbd5e1;
+  --hover-bg: #f1f5f9;
+  --accent: #0b74de;
+  --accent-hover: #095fb8;
+  --success-bg: #dcfce7;
+  --success-text: #15803d;
+  --error-bg: #fee2e2;
+  --error-text: #b91c1c;
+  --warning-bg: #fef3c7;
+  --warning-text: #d97706;
+  --table-row-hover: #f8fafc;
+  --badge-admin-bg: #e0e7ff;
+  --badge-admin-text: #3730a3;
+  --badge-customer-bg: #dbeafe;
+  --badge-customer-text: #1e40af;
+  --badge-restaurant-bg: #fce7f3;
+  --badge-restaurant-text: #9d174d;
+}
 
-/* Custom Page Header styles */
-.page-header {
-  margin-bottom: 2rem;
+:root.dark {
+  --bg: #1e1e2e;
+  --text: #cdd6f4;
+  --text-muted: #a6adc8;
+  --border: #313244;
+  --card-bg: #181825;
+  --sidebar-bg: #11111b;
+  --sidebar-text: #cdd6f4;
+  --sidebar-muted: #a6adc8;
+  --sidebar-border: #313244;
+  --sidebar-hover: #1e1e2e;
+  --sidebar-active: #313244;
+  --sidebar-footer-bg: #11111b;
+  --modal-bg: #1e1e2e;
+  --input-bg: #313244;
+  --input-border: #45475a;
+  --hover-bg: #313244;
+  --accent: #89b4fa;
+  --accent-hover: #74c7ec;
+  --success-bg: #1e3a2f;
+  --success-text: #a6e3a1;
+  --error-bg: #3a1e1e;
+  --error-text: #f38ba8;
+  --warning-bg: #3a2e1e;
+  --warning-text: #f9e2af;
+  --table-row-hover: #313244;
+  --badge-admin-bg: #302d41;
+  --badge-admin-text: #b4befe;
+  --badge-customer-bg: #1e2e3a;
+  --badge-customer-text: #89b4fa;
+  --badge-restaurant-bg: #3a1e2e;
+  --badge-restaurant-text: #f5c2e7;
 }
-.page-header h1 {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-.page-header p {
-  margin: 0.25rem 0 0 0;
-  font-size: 0.95rem;
-  color: #64748b;
-}
+
+html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+.page-header { margin-bottom: 2rem; }
+.page-header h1 { margin:0;font-size:1.75rem;font-weight:700;color:var(--text); }
+.page-header p { margin:0.25rem 0 0 0;font-size:0.95rem;color:var(--text-muted); }
 
 /* Layout */
 .container{padding:2rem;max-width:1200px;margin:0 auto}
 .grid-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
 .panels{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem}
-.panel{background:#ffffff;padding:1.5rem;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.02)}
-.panel h2{margin:0 0 1rem 0;font-size:1.1rem;font-weight:600;color: #1e293b}
+.panel{background:var(--card-bg);padding:1.5rem;border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,0.02)}
+.panel h2{margin:0 0 1rem 0;font-size:1.1rem;font-weight:600;color:var(--text)}
 .spark{height:60px}
 svg{width:100%;height:100%}
 
-@media(max-width:960px){
-  .panels{grid-template-columns:1fr}
-}
+@media(max-width:960px){ .panels{grid-template-columns:1fr} }
 
 /* Stats Card */
 .card{
   padding:1.25rem;
   border-radius:12px;
-  background:#ffffff;
+  background:var(--card-bg);
   box-shadow:0 1px 3px rgba(0,0,0,0.02);
-  border:1px solid #e2e8f0;
+  border:1px solid var(--border);
   display:flex;
   flex-direction:column;
   justify-content:space-between;
@@ -47,37 +101,67 @@ svg{width:100%;height:100%}
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 .card .meta{display:flex;justify-content:space-between;align-items:center}
-.card .title{font-size:0.875rem;font-weight: 500;color:#64748b}
-.card .change{font-size:0.75rem;font-weight: 600;color:#0b74de}
-.card .value{font-weight:700;font-size:1.5rem;margin-top:0.5rem;color:#0f172a}
+.card .title{font-size:0.875rem;font-weight:500;color:var(--text-muted)}
+.card .change{font-size:0.75rem;font-weight:600;color:var(--accent)}
+.card .value{font-weight:700;font-size:1.5rem;margin-top:0.5rem;color:var(--text)}
 
 /* Orders Table */
-.orders {
-  overflow-x: auto;
-}
+.orders { overflow-x: auto; }
 .orders table{width:100%;border-collapse:collapse;text-align:left}
-th,td{padding:0.75rem 1rem;border-bottom:1px solid #e2e8f0;font-size:0.9rem}
-th {
-  font-weight: 600;
-  color: #475569;
-  background: #f8fafc;
-}
-td {
-  color: #0f172a;
-}
-select{
-  padding: 0.35rem 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #cbd5e1;
-  background-color: #fff;
-  font-size: 0.85rem;
+th,td{padding:0.75rem 1rem;border-bottom:1px solid var(--border);font-size:0.9rem}
+th{font-weight:600;color:var(--text-muted);background:var(--bg)}
+td{color:var(--text);background:transparent}
+tbody tr:hover td{background:var(--table-row-hover)}
+select,input,textarea{
+  padding:0.35rem 0.5rem;
+  border-radius:6px;
+  border:1px solid var(--input-border);
+  background-color:var(--input-bg);
+  color:var(--text);
+  font-size:0.85rem;
   margin-right:0.5rem;
-  outline: none;
+  outline:none;
 }
-select:focus {
-  border-color: #0b74de;
+select:focus,input:focus,textarea:focus{border-color:var(--accent)}
+.status{padding:0.25rem 0.5rem;border-radius:6px;font-size:0.8rem;font-weight:500}
+.status.pending{background:var(--warning-bg);color:var(--warning-text)}
+.status.paid{background:var(--badge-customer-bg);color:var(--badge-customer-text)}
+.status.confirmed{background:var(--badge-admin-bg);color:var(--badge-admin-text)}
+.status.preparing{background:var(--warning-bg);color:var(--warning-text)}
+.status.completed,.status.delivered{background:var(--success-bg);color:var(--success-text)}
+.status.cancelled{background:var(--error-bg);color:var(--error-text)}
+
+/* buttons */
+button:not(.btn-close):not(.btn-change-avatar):not(.btn-dark-toggle){
+  padding:0.5rem 1rem;border-radius:8px;font-size:0.85rem;font-weight:500;cursor:pointer;border:1px solid var(--border);transition:all 0.15s;
 }
-.status{padding:0.25rem 0.5rem;border-radius:6px;font-size:0.8rem;font-weight: 500}
-.status.pending{background:#fef3c7;color:#d97706}
-.status.completed{background:#dcfce7;color:#15803d}
-.status.cancelled{background:#fee2e2;color:#b91c1c}
+button.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.btn-primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+button.btn-danger{background:var(--error-bg);color:var(--error-text);border-color:var(--error-border,var(--error-bg))}
+button.btn-danger:hover{background:var(--error-text);color:#fff}
+button.btn-secondary{background:transparent;color:var(--text);border-color:var(--border)}
+button.btn-secondary:hover{background:var(--hover-bg)}
+
+/* overlays and modals */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--modal-bg);border-radius:16px;padding:2rem;z-index:201;min-width:360px;max-width:90vw;box-shadow:0 25px 50px rgba(0,0,0,0.25)}
+
+/* utility classes */
+.text-muted{color:var(--text-muted)}
+.text-success{color:var(--success-text)}
+.text-error{color:var(--error-text)}
+.text-warning{color:var(--warning-text)}
+.bg-card{background:var(--card-bg)}
+.bg-hover{background:var(--hover-bg)}
+
+/* ── Leaflet dark overrides ── */
+:root.dark .leaflet-control-zoom a,
+:root.dark .leaflet-popup-content-wrapper,
+:root.dark .leaflet-popup-tip {
+  background:#313244;color:#cdd6f4;border-color:#45475a;
+}
+:root.dark .leaflet-control-zoom a { border-color:#45475a; }
+:root.dark .leaflet-control-zoom a:hover { background:#45475a; }
+:root.dark .leaflet-control-attribution { background:#1e1e2e;color:#a6adc8; }
+:root.dark .leaflet-control-attribution a { color:#89b4fa; }
+:root.dark .leaflet-marker-icon { filter:hue-rotate(180deg) saturate(0.7); }
